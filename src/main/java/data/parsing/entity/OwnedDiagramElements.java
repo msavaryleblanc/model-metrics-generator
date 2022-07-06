@@ -31,6 +31,7 @@ public class OwnedDiagramElements extends BaseNode{
 	public boolean showName;
 	public String value;
 	public boolean straight;
+public String color;
 
 	public OwnedDiagramElements(Node node){
 		this.type = getAttributeFromNode(node, "xsi:type");
@@ -44,6 +45,7 @@ public class OwnedDiagramElements extends BaseNode{
 		this.height = getIntAttributeFromNode(node, "height");
 		this.minHeight = getIntAttributeFromNode(node, "minHeight");
 		this.minWidth = getIntAttributeFromNode(node, "minWidth");
+		this.color = getAttributeFromNode(node, "color");
 
 	}
 

@@ -1,16 +1,28 @@
 package main.java.data.analysis.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class OutputCSVEntry {
 
+    List<ColorCSVEntry> colorCSVEntryList;
     String fileName;
     String projectId;
+    String diagramId;
     String classNb;
     String gridLines;
     String girdColumns;
     String gridRatio;
-    String width;
-    String height;
+    String width = "-1";
+    String height= "-1";
+    String trueWidth= "-1";
+    String trueHeight= "-1";
+    String diagramUrl;
 
+
+    public OutputCSVEntry() {
+        this.colorCSVEntryList = new ArrayList<>();
+    }
 
     public String getFileName() {
         return fileName;
@@ -76,15 +88,54 @@ public class OutputCSVEntry {
         this.height = height;
     }
 
+    public String getTrueWidth() {
+        return trueWidth;
+    }
+
+    public void setTrueWidth(String trueWidth) {
+        this.trueWidth = trueWidth;
+    }
+
+    public String getTrueHeight() {
+        return trueHeight;
+    }
+
+    public void setTrueHeight(String trueHeight) {
+        this.trueHeight = trueHeight;
+    }
+
+    public String getDiagramUrl() {
+        return diagramUrl;
+    }
+
+    public void setDiagramUrl(String diagramUrl) {
+        this.diagramUrl = diagramUrl;
+    }
+
+    public List<ColorCSVEntry> getColorCSVEntryList() {
+        return colorCSVEntryList;
+    }
+
+    public String getDiagramId() {
+        return diagramId;
+    }
+
+    public void setDiagramId(String diagramId) {
+        this.diagramId = diagramId;
+    }
 
     public String toCSV() {
         return fileName + ';' +
                 projectId + ';' +
+                diagramId + ';' +
                 classNb + ';' +
                 gridLines + ';' +
                 girdColumns + ';' +
                 gridRatio + ';' +
                 width + ';' +
-                height;
+                height + ';' +
+                trueWidth + ';' +
+                trueHeight + ";"+
+                diagramUrl;
     }
 }

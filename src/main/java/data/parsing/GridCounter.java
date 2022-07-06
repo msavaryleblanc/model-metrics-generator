@@ -1,5 +1,6 @@
 package main.java.data.parsing;
 
+import main.java.data.analysis.entity.SizePojo;
 import main.java.data.parsing.entity.OwnedDiagramElements;
 
 import java.util.ArrayList;
@@ -53,12 +54,6 @@ public class GridCounter {
         }
         clusters.add(currentCluster);
 
-        System.out.println(clusters);
-
-        for(Integer y : yList){
-            System.out.println(y);
-        }
-
         return clusters.size();
     }
 
@@ -103,12 +98,36 @@ public class GridCounter {
         }
         clusters.add(currentCluster);
 
-        System.out.println(clusters);
+        return clusters.size();
+    }
 
-        for(Integer y : xList){
-            System.out.println(y);
+
+    public SizePojo getTrueSize(List<OwnedDiagramElements> ownedDiagramElementsList){
+
+        int minY = Integer.MAX_VALUE;
+        int maxYWithOffset = -1;
+        int minX = Integer.MAX_VALUE;
+        int maxXWithOffset = -1;
+
+        for(OwnedDiagramElements ownedDiagramElements : ownedDiagramElementsList){
+            if(ownedDiagramElements.y < minY){
+                minY = ownedDiagramElements.y;
+            }
+            if(ownedDiagramElements.y + ownedDiagramElements.height > maxYWithOffset){
+                maxYWithOffset = ownedDiagramElements.y + ownedDiagramElements.height;
+            }
+            if(ownedDiagramElements.x < minX){
+                minX = ownedDiagramElements.x;
+            }
+            if(ownedDiagramElements.x + ownedDiagramElements.width > maxXWithOffset){
+                maxXWithOffset = ownedDiagramElements.x + ownedDiagramElements.width;
+            }
         }
 
-        return clusters.size();
+
+
+        SizePojo sizePojo = new SizePojo(minX,minY,maxXWithOffset-minX,maxYWithOffset-minY);
+
+        return sizePojo;
     }
 }

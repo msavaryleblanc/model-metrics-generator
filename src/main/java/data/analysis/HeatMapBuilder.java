@@ -1,15 +1,20 @@
 package main.java.data.analysis;
 
+import main.java.data.analysis.entity.SizePojo;
 import main.java.data.parsing.entity.OwnedDiagramElements;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 public class HeatMapBuilder {
 
     public static final int TARGET_WIDTH = 1000;
+    public static final int TARGET_HEIGHT = 800;
     public static final int MAX_HEIGHT = 2500;
     float[][] pixels;
     float currentMax;
@@ -22,9 +27,60 @@ public class HeatMapBuilder {
 
     public void parseClasses(int width, int height, List<OwnedDiagramElements> ownedDiagramElementsList) {
         float ratio = TARGET_WIDTH * 1f / width;
-        System.out.print("width " + width + " heifght : " + height + " ration " + ratio);
         for (OwnedDiagramElements classElement : ownedDiagramElementsList) {
             addPixelsOfClass(ratio, classElement);
+        }
+    }
+
+    public void parseClassesRealWidth(SizePojo sizePojo, int width, int height, List<OwnedDiagramElements> ownedDiagramElementsList) {
+        float ratio = TARGET_WIDTH * 1f / sizePojo.getTrueWith();
+        for (OwnedDiagramElements classElement : ownedDiagramElementsList) {
+            addPixelsOfClassTrueWidth(sizePojo, ratio, classElement);
+        }
+    }
+
+    public void parseClassesFitDiagramInBox(SizePojo sizePojo, int width, int height, List<OwnedDiagramElements> ownedDiagramElementsList) {
+        //float ratioY = TARGET_WIDTH * 1f / sizePojo.getTrueWith();
+        float ratioX = TARGET_WIDTH * 1f / sizePojo.getTrueWith();
+        //float ratioX = TARGET_HEIGHT * 1f / sizePojo.getTrueHeight();
+        float ratioY = TARGET_HEIGHT * 1f / sizePojo.getTrueHeight();
+
+        for (OwnedDiagramElements classElement : ownedDiagramElementsList) {
+            addPixelsOfClassFirDiagramInBox(sizePojo, ratioX, ratioY, classElement);
+        }
+    }
+
+    private void addPixelsOfClassFirDiagramInBox(SizePojo sizePojo, float ratioX, float ratioY, OwnedDiagramElements classElement) {
+        int x = Math.max(0,(int) ((classElement.x - sizePojo.getMinX()) * ratioX));
+        int y = Math.max(0,(int) ((classElement.y - sizePojo.getMinY()) * ratioY));
+        int w = (int) (classElement.width * ratioX);
+        int h = (int) (classElement.height * ratioY);
+
+
+        int heightConstraint = Math.min(y + h, TARGET_HEIGHT-1);
+
+        for (int j = y; j < heightConstraint; j++) {
+            for (int i = x; i < Math.min(x + w, TARGET_WIDTH-1); i++) {
+
+                pixels[j][i] += 1;
+            }
+        }
+    }
+
+    private void addPixelsOfClassTrueWidth(SizePojo sizePojo, float ratio, OwnedDiagramElements classElement) {
+        int x = Math.max(0,(int) ((classElement.x - sizePojo.getMinX()) * ratio));
+        int y = Math.max(0,(int) ((classElement.y - sizePojo.getMinY()) * ratio));
+        int w = (int) (classElement.width * ratio);
+        int h = (int) (classElement.height * ratio);
+
+
+        int heightConstraint = Math.min(y + h, MAX_HEIGHT);
+
+        for (int j = y; j < heightConstraint; j++) {
+            for (int i = x; i < Math.min(x + w, TARGET_WIDTH-1); i++) {
+
+                pixels[j][i] += 1;
+            }
         }
     }
 
@@ -34,7 +90,6 @@ public class HeatMapBuilder {
         int w = (int) (classElement.width * ratio);
         int h = (int) (classElement.height * ratio);
 
-        System.out.print(x + "  " + y + "  " + w + "  " + h);
 
         int heightConstraint = Math.min(y + h, MAX_HEIGHT);
 
@@ -91,7 +146,7 @@ public class HeatMapBuilder {
         frame.setVisible(true);
     }
 
-    public void printImage() {
+    public void printImage(String imageName, boolean shouldDisplay) {
         // Create the new image needed
         BufferedImage img = new BufferedImage(TARGET_WIDTH, MAX_HEIGHT, BufferedImage.TYPE_INT_RGB);
 
@@ -102,11 +157,47 @@ public class HeatMapBuilder {
             }//for cols
         }//for rows
 
-        JFrame frame = new JFrame();
-        frame.getContentPane().setLayout(new FlowLayout());
-        frame.getContentPane().add(new JLabel(new ImageIcon(img)));
-        frame.pack();
-        frame.setVisible(true);
+        if(shouldDisplay) {
+            JFrame frame = new JFrame();
+            frame.getContentPane().setLayout(new FlowLayout());
+            frame.getContentPane().add(new JLabel(new ImageIcon(img)));
+            frame.pack();
+            frame.setVisible(true);
+        }
+
+        try {
+            File outputfile = new File("heatmap/"+imageName+".jpg");
+            ImageIO.write(img, "jpg", outputfile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void printImageFit(String imageName, boolean shouldDisplay) {
+        // Create the new image needed
+        BufferedImage img = new BufferedImage(TARGET_WIDTH, TARGET_HEIGHT, BufferedImage.TYPE_INT_RGB);
+
+        for (int rc = 0; rc < TARGET_HEIGHT; rc++) {
+            for (int cc = 0; cc < TARGET_WIDTH; cc++) {
+                // Set the pixel colour of the image n.b. x = cc, y = rc
+                img.setRGB(cc, rc, getColorFromPixelPower(pixels[rc][cc]));
+            }//for cols
+        }//for rows
+
+        if(shouldDisplay) {
+            JFrame frame = new JFrame();
+            frame.getContentPane().setLayout(new FlowLayout());
+            frame.getContentPane().add(new JLabel(new ImageIcon(img)));
+            frame.pack();
+            frame.setVisible(true);
+        }
+
+        try {
+            File outputfile = new File("heatmap/"+imageName+".jpg");
+            ImageIO.write(img, "jpg", outputfile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private int getColorFromPixelPower(float pixelPower) {
