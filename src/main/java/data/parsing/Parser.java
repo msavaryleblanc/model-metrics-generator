@@ -23,11 +23,11 @@ public class Parser {
 
     public static void main(String[] args) throws JsonProcessingException {
 
-        //List<String> files = new XmiFileListReader().getFilenames();
-        //files = files.subList(0, 20000);
-        //parseFiles(files, "", true, true);
+        List<String> files = new XmiFileListReader().getFilenames();
+        //files = files.subList(0, 5000);
+        parseFiles(files, "", true, true);
 
-        generateHeatmapsForAllNumbers();
+        //generateHeatmapsForAllNumbers();
 
     }
 
@@ -51,8 +51,8 @@ public class Parser {
             }
 
             /*List<OutputCSVEntry> outputCSVEntryList = customParser.readXML("3631-UML-_Hr0oEMUuEeeWu-SLkciAbg.xmi");
-            outputCSVWriter.writeOutput(outputCSVEntryList);
-*/
+            outputCSVWriter.writeOutput(outputCSVEntryList);*/
+
 
             //customParser.readXML("3306-UML-_otmYUONpEee1VcqWCkiVQg.xmi");
             //customParser.readXML("2704-UML-_VcWt4GzhEeiBgNYYgyFQHg.xmi");
@@ -66,7 +66,7 @@ public class Parser {
             customParser.trueSizeHeatMapBuilder.printImage(heatprefix+"trueWidthHeat", shouldDisplay);
 */
             customParser.fitDiagramHeatpMapBuilder.normalize();
-            customParser.fitDiagramHeatpMapBuilder.printImageFit(heatprefix + "fitBoxHeat", shouldDisplay);
+            //customParser.fitDiagramHeatpMapBuilder.printImageFit(heatprefix + "fitBoxHeat", shouldDisplay);
 
         } catch (Exception e) {
             e.printStackTrace();

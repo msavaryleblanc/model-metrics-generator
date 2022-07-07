@@ -6,6 +6,8 @@ import java.util.List;
 public class OutputCSVEntry {
 
     List<ColorCSVEntry> colorCSVEntryList;
+    List<DiagElementCSVEntry> diagElementCSVEntryList = new ArrayList<>();
+
     String fileName;
     String projectId;
     String diagramId;
@@ -122,6 +124,14 @@ public class OutputCSVEntry {
 
     public void setDiagramId(String diagramId) {
         this.diagramId = diagramId;
+    }
+
+    public List<DiagElementCSVEntry> getDiagElementCSVEntryList() {
+        return diagElementCSVEntryList;
+    }
+
+    public void setDiagElementCSVEntryList(List<DiagElementCSVEntry> diagElementCSVEntryList) {
+        this.diagElementCSVEntryList = diagElementCSVEntryList;
     }
 
     public String toCSV() {

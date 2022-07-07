@@ -1,43 +1,30 @@
 package main.java.data.parsing.entity;
 
+import main.java.data.analysis.entity.DiagElementCSVEntry;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class PackagedElement extends BaseNode{
+public class PackagedElement extends BaseNode {
 
-	//public List<Include> include;
-	public String type;
-	public String id;
-	public String name;
-	//public Extension Extension;
-	//public List<OwnedEnd> ownedEnd;
-	//public String memberEnd;
-	//public String navigableOwnedEnd;
-	//public List<ExtensionPoint> extensionPoint;
-	//public Extend extend;
-	//public List<Edge> edge;
-	//public List<Group> group;
-	//public List<Node> node;
-public List<OwnedAttribute> ownedAttributeList;
+    public String type;
+    public String id;
+    public String name;
+    
+    public List<DiagElementCSVEntry> diagElementCSVEntryList;
 
-	public PackagedElement(org.w3c.dom.Node node){
-		this.type = getAttributeFromNode(node, "xsi:type");
-		this.id = getAttributeFromNode(node, "xmi:id");
-		this.name = getAttributeFromNode(node, "name");
 
-this.ownedAttributeList = new ArrayList<>();
 
-		NodeList nodeList = node.getChildNodes();
-		for (int i = 0; i < nodeList.getLength(); i++) {
-			Node nodeItem = nodeList.item(i);
-			if("ownedAttribute".equals(nodeItem.getNodeName())){
-				this.ownedAttributeList.add(new OwnedAttribute(nodeItem));
-			}
-		}
-	}
+    public PackagedElement(org.w3c.dom.Node node) {
+        this.diagElementCSVEntryList = new ArrayList<>();
+
+        this.type = getAttributeFromNode(node, "xsi:type");
+        this.id = getAttributeFromNode(node, "xmi:id");
+        this.name = getAttributeFromNode(node, "name");
+
+    }
 	/*
 	<packagedElement xsi:type="uml:Class" xmi:id="_US2RYE8PEDa7wqv_e_UwiQ" name="ConverterPreprocessor">
       <xmi:Extension extender="http://www.eclipse.org/emf/2002/Ecore">
@@ -63,13 +50,17 @@ this.ownedAttributeList = new ArrayList<>();
         <xmi:Extension extender="http://www.eclipse.org/emf/2002/Ecore">
 			*/
 
-	@Override
-	public String toString() {
-		return "PackagedElement{" +
-				"type='" + type + '\'' +
-				", id='" + id + '\'' +
-				", name='" + name + '\'' +
-				", ownedAttributeList=" + ownedAttributeList +
-				"} " + super.toString();
-	}
+    public List<DiagElementCSVEntry> getDiagElementCSVEntryList() {
+        return diagElementCSVEntryList;
+    }
+
+    @Override
+    public String toString() {
+        return "PackagedElement{" +
+                "type='" + type + '\'' +
+                ", id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", diagElementCSVEntryList=" + diagElementCSVEntryList +
+                "} " + super.toString();
+    }
 }
