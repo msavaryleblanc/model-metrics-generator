@@ -1,6 +1,7 @@
 target
 .idea
 *.iml
+.Rproj.user
 csv
 save
 /save/

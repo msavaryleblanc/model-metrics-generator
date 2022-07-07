@@ -1,0 +1,37 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+
+```{r}
+
+library(plyr)
+library(dplyr)
+library(kableExtra)
+library(gmodels)
+library(reshape)
+library(tidyr)
+library(knitr)
+library(plotly)
+if (!require("processx")) install.packages("processx")
+knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
+
+csv_extraction_color<-read.csv(file = "../../csv/csv_report_color.csv", skip='0', sep = ";", header = FALSE)
+colnames(csv_extraction_color) <- c("filename","project_id","element_type","color","E")
+
+csv_extraction_color <- csv_extraction_color %>% group_by(project_id, color) %>% tally() %>% group_by(project_id) %>% tally()
+
+library(plotly)
+
+
+
+```
+
+
