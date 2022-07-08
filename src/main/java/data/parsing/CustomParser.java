@@ -20,7 +20,7 @@ import java.util.List;
 
 public class CustomParser {
 
-public static final String BASE_PATH = "D:\\boulot\\genmymodel-model-retriever\\xmi\\";
+public static final String BASE_PATH = "";
 
     HeatMapBuilder heatMapBuilder;
 
@@ -49,6 +49,9 @@ public static final String BASE_PATH = "D:\\boulot\\genmymodel-model-retriever\\
             dom = db.parse(new File(BASE_PATH + fileName));
 
             NodeList nodeList = dom.getElementsByTagName("packagedElement");
+
+            SegmentIntersectionCounter segmentIntersectionCounter = new SegmentIntersectionCounter();
+            segmentIntersectionCounter.parse(dom);
 
 
             //for (int i = 0; i < nodeList.getLength(); i++) {

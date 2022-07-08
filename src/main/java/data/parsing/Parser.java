@@ -32,26 +32,27 @@ public class Parser {
 
     public static void main(String[] args) throws JsonProcessingException {
 
-        List<InputCSVEntry> classDiagramProjects= new XmiFileListReader(new InputCSVReader()).getXmiWithClassDiagrams();
+//        List<InputCSVEntry> classDiagramProjects= new XmiFileListReader(new InputCSVReader()).getXmiWithClassDiagrams();
         //new InputCSVReader();
 
-        OutputCSVWriter outputCSVWriter = new OutputCSVWriter();
+//        OutputCSVWriter outputCSVWriter = new OutputCSVWriter();
 
         CustomParser customParser = new CustomParser();
         try {
 
-            classDiagramProjects = classDiagramProjects.subList(0,15000);
+/*            classDiagramProjects = classDiagramProjects.subList(0,15000);
             for(InputCSVEntry inputCSVEntry : classDiagramProjects){
                 OutputCSVEntry outputCSVEntry = customParser.readXML(inputCSVEntry.getAttachedFile());
                 outputCSVWriter.writeOutput(outputCSVEntry);
-            }
+            }*/
+            customParser.readXML("mon.xmi");
         //customParser.readXML("3308-UML-48b69bbf-46f2-4cd7-b884-d2e6b7a759c4.xmi");
         //customParser.readXML("3306-UML-_otmYUONpEee1VcqWCkiVQg.xmi");
         //customParser.readXML("2704-UML-_VcWt4GzhEeiBgNYYgyFQHg.xmi");
 
-            customParser.heatMapBuilder.normalize();
+//            customParser.heatMapBuilder.normalize();
             //customParser.heatMapBuilder.printPixels();
-            customParser.heatMapBuilder.printImage();
+//            customParser.heatMapBuilder.printImage();
             //customParser.heatMapBuilder.printTestImage();
 
         } catch (Exception e) {
