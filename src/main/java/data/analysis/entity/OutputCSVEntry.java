@@ -20,6 +20,7 @@ public class OutputCSVEntry {
     String trueWidth= "-1";
     String trueHeight= "-1";
     String diagramUrl;
+    String maxElementsInClass;
 
 
     public OutputCSVEntry() {
@@ -134,6 +135,15 @@ public class OutputCSVEntry {
         this.diagElementCSVEntryList = diagElementCSVEntryList;
     }
 
+
+    public String getMaxElementsInClass() {
+        return maxElementsInClass;
+    }
+
+    public void setMaxElementsInClass(String maxElementsInClass) {
+        this.maxElementsInClass = maxElementsInClass;
+    }
+
     public String toCSV() {
         return fileName + ';' +
                 projectId + ';' +
@@ -146,6 +156,7 @@ public class OutputCSVEntry {
                 height + ';' +
                 trueWidth + ';' +
                 trueHeight + ";"+
+                maxElementsInClass + ";"+
                 diagramUrl;
     }
 }

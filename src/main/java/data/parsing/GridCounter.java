@@ -130,4 +130,25 @@ public class GridCounter {
 
         return sizePojo;
     }
+
+    public OwnedDiagramElements getBiggestAreaClass(List<OwnedDiagramElements> ownedDiagramElementsList){
+        int maxArea = -1;
+        OwnedDiagramElements currentMax = null;
+        for(OwnedDiagramElements ownedDiagramElements : ownedDiagramElementsList){
+            if(!ownedDiagramElements.type.contains("PackageWidget")) {
+                int currentArea = ownedDiagramElements.width * ownedDiagramElements.height;
+                ownedDiagramElements.area = currentArea;
+                ownedDiagramElements.barycenterX = ownedDiagramElements.x + ownedDiagramElements.width / 2;
+                ownedDiagramElements.barycenterY = ownedDiagramElements.y + ownedDiagramElements.height / 2;
+
+                if (currentArea > maxArea) {
+                    maxArea = currentArea;
+                    currentMax = ownedDiagramElements;
+                }
+            }
+        }
+
+        return currentMax;
+    }
+
 }

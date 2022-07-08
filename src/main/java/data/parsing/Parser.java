@@ -10,6 +10,7 @@ import main.java.data.analysis.XmiFileListReader;
 import main.java.data.analysis.entity.InputCSVEntry;
 import main.java.data.analysis.entity.OutputCSVEntry;
 import main.java.data.parsing.entity.Contents;
+import main.java.data.parsing.entity.InputDiagram;
 import main.java.data.parsing.entity.XMI;
 
 import java.io.IOException;
@@ -24,14 +25,23 @@ public class Parser {
     public static void main(String[] args) throws JsonProcessingException {
 
         List<String> files = new XmiFileListReader().getFilenames();
-        //files = files.subList(0, 5000);
-        parseFiles(files, "", true, true);
+        files = files.subList(0, 1000);
+        List<InputDiagram> inputDiagrams = new ArrayList<>();
+        for (String file : files) {
+            InputDiagram inputDiagram = new InputDiagram();
+            inputDiagram.setFileName(file);
+            inputDiagrams.add(inputDiagram);
+        }
+        parseFiles(inputDiagrams, "", true, true);
 
-        //generateHeatmapsForAllNumbers();
+
+
+        generateHeatmapsForAllNumbers();
 
     }
 
-    private static void parseFiles(List<String> fileNames, String heatprefix, boolean shouldDisplay, boolean shouldWrite) {
+
+    private static void parseFiles(List<InputDiagram> fileNames, String heatprefix, boolean shouldDisplay, boolean shouldWrite) {
         //new InputCSVReader();
 
         OutputCSVWriter outputCSVWriter = new OutputCSVWriter();
@@ -41,11 +51,11 @@ public class Parser {
 
             List<OutputCSVEntry> outputCSVEntryList = new ArrayList<>();
 
-            for (String filename : fileNames) {
-                outputCSVEntryList.addAll(customParser.readXML(filename));
+            for (InputDiagram inputDiagram : fileNames) {
+                outputCSVEntryList.addAll(customParser.readXML(inputDiagram));
             }
 
-            if(shouldWrite) {
+            if (shouldWrite) {
                 System.out.println("About to write " + outputCSVEntryList.size() + " entries");
                 outputCSVWriter.writeOutput(outputCSVEntryList);
             }
@@ -54,19 +64,18 @@ public class Parser {
             outputCSVWriter.writeOutput(outputCSVEntryList);*/
 
 
-            //customParser.readXML("3306-UML-_otmYUONpEee1VcqWCkiVQg.xmi");
-            //customParser.readXML("2704-UML-_VcWt4GzhEeiBgNYYgyFQHg.xmi");
-
-            /*customParser.heatMapBuilder.normalize();
-            //customParser.heatMapBuilder.printPixels();
-            customParser.heatMapBuilder.printImage(heatprefix+"scaledHeat", shouldDisplay);
-            //customParser.heatMapBuilder.printTestImage();
-
-            customParser.trueSizeHeatMapBuilder.normalize();
-            customParser.trueSizeHeatMapBuilder.printImage(heatprefix+"trueWidthHeat", shouldDisplay);
-*/
             customParser.fitDiagramHeatpMapBuilder.normalize();
-            //customParser.fitDiagramHeatpMapBuilder.printImageFit(heatprefix + "fitBoxHeat", shouldDisplay);
+            customParser.fitDiagramHeatpMapBuilder.printImageFit(heatprefix + "fitBoxHeat", shouldDisplay);
+
+            customParser.interestingClassBuilder.normalize();
+            customParser.interestingClassBuilder.printImageFit(heatprefix + "biggestClass", shouldDisplay);
+
+            customParser.maxElementsBuilder.normalize();
+            customParser.maxElementsBuilder.printImageFit(heatprefix + "maxElements", shouldDisplay);
+
+
+            customParser.allClassLocationBuilder.normalize();
+            customParser.allClassLocationBuilder.printImageFit(heatprefix + "all", shouldDisplay);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -74,8 +83,9 @@ public class Parser {
     }
 
     private static void generateHeatmapsForAllNumbers() {
-        for (int i = 60; i < 120; i++) {
-            List<String> files = getFilenameWithNbClass(i);
+        for (int i = 1; i < 60; i++) {
+            List<InputDiagram> files = getFilenameWithNbClass(i);
+            //files = files.subList(40,41);
             System.out.println("There are " + files.size() + " files for " + i);
             parseFiles(files, i + "-", false, false);
         }
@@ -83,9 +93,9 @@ public class Parser {
     }
 
 
-    private static List<String> getFilenameWithNbClass(int numberOfClasses) {
+    private static List<InputDiagram> getFilenameWithNbClass(int numberOfClasses) {
 
-        List<String> output = new ArrayList<>();
+        List<InputDiagram> output = new ArrayList<>();
 
         try {
 
@@ -94,10 +104,15 @@ public class Parser {
             for (String line : lines) {
                 String[] splittedLine = line.split(";");
                 String fileName = splittedLine[0];
+                String diagramId = splittedLine[2];
                 String nbClasses = splittedLine[3];
 
+
                 if (Integer.parseInt(nbClasses) == numberOfClasses) {
-                    output.add(fileName);
+                    InputDiagram inputDiagram = new InputDiagram();
+                    inputDiagram.setFileName(fileName);
+                    inputDiagram.setDiagramId(diagramId);
+                    output.add(inputDiagram);
                 }
 
             }

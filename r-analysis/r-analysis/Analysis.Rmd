@@ -23,15 +23,39 @@ library(plotly)
 if (!require("processx")) install.packages("processx")
 knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
 
-csv_extraction_color<-read.csv(file = "../../csv/csv_report_color.csv", skip='0', sep = ";", header = FALSE)
-colnames(csv_extraction_color) <- c("filename","project_id","element_type","color","E")
+color_csv<-read.csv(file = "../../csv/csv_report_color.csv", skip='0', sep = ";", header = FALSE)
 
-csv_extraction_color <- csv_extraction_color %>% group_by(project_id, color) %>% tally() %>% group_by(project_id) %>% tally()
+elements<-read.csv(file = "../../csv/csv_report_elements.csv", skip='0', sep = ";", header = FALSE)
+
+colnames(color_csv) <- c("filename","project_id","element_type","color","E")
+colnames(elements) <- c("project_id","diagram_id","element_id","type","name","in_class","asso_type","visibility","format", "begin_format")
+
+color_csv <- color_csv %>%  group_by(project_id, element_type, color) %>% mutate(brightness = as.vector(col2hsl(color))[3]) %>% group_by(project_id, element_type, color, brightness)
+
+colors_by_diagram <- color_csv %>% group_by(project_id, element_type) %>% tally()
+
+
+
+analysis_elements <- elements %>% group_by(diagram_id, type) %>% tally()
+type_of_elements <- elements %>% group_by(type) %>% tally()
+
 
 library(plotly)
 
-
+library(plotwidgets)
+x <- "#FF2400FF"
+as.vector(col2hsl(x))[3]
 
 ```
+# Elements in diagrams
+```{r}
 
+temp <- elements %>% group_by(V4) %>% tally() %>% arrange(n) %>% ungroup()
+fig <- plot_ly(temp, x = ~V4, y = ~n, name = "SF Zoo",type = "bar") %>% 
+  layout(title = "Mean Depth for each Clarity Category", xaxis = list(categoryorder = "array", categoryarray = ~n)
+  )
+
+fig
+
+```
 
