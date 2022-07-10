@@ -11,6 +11,8 @@ public class UsageElement extends PackagedElement {
     public UsageElement(Node node) {
         super(node);
 
+        endType.add(getAttributeFromNode(node, "client"));
+        endType.add(getAttributeFromNode(node, "supplier"));
 
         DiagElementCSVEntry associationCSVEntry = new DiagElementCSVEntry();
         associationCSVEntry.setElementId(this.id);

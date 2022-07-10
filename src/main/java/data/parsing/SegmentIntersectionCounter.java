@@ -36,7 +36,7 @@ public class SegmentIntersectionCounter extends GenericParser {
 
     }
 
-    private void drawSegments(ArrayList<Line2D> segments) {
+    public void drawSegments(ArrayList<Line2D> segments) {
         JFrame frame = new JFrame();
         frame.getContentPane().setLayout(new GridLayout(1, 1));
         JPanel panel = new JPanel() {
@@ -119,7 +119,7 @@ public class SegmentIntersectionCounter extends GenericParser {
 
     }
 
-    private int computeIntersections(ArrayList<Line2D> segments) {
+    public int computeIntersections(ArrayList<Line2D> segments) {
         int counter = 0;
         for (int index1 = 0; index1 < segments.size(); index1++) {
             for (int index2 = index1 + 1; index2 < segments.size(); index2++) {
@@ -133,9 +133,9 @@ public class SegmentIntersectionCounter extends GenericParser {
                     // let's check if intersection there is
                     if (doIntersect(segment1.getP1(), segment1.getP2(), segment2.getP1(), segment2.getP2())) {
                         counter++;
-                        System.out.println(" ******* INTERSECTION ON *******");
-                        System.out.println("" + segment1.getP1().getX() + " , " + segment1.getP1().getY() + "   /   " + segment1.getP2().getX() + " , " + segment1.getP2().getY());
-                        System.out.println("" + segment2.getP1().getX() + " , " + segment2.getP1().getY() + "   /   " + segment2.getP2().getX() + " , " + segment2.getP2().getY());
+                        //System.out.println(" ******* INTERSECTION ON *******");
+                        //System.out.println("" + segment1.getP1().getX() + " , " + segment1.getP1().getY() + "   /   " + segment1.getP2().getX() + " , " + segment1.getP2().getY());
+                        //System.out.println("" + segment2.getP1().getX() + " , " + segment2.getP1().getY() + "   /   " + segment2.getP2().getX() + " , " + segment2.getP2().getY());
                     }
                 }
             }
@@ -146,7 +146,7 @@ public class SegmentIntersectionCounter extends GenericParser {
     // To construct segments, we have to use associationSegment nodes
     // they link segment points (anchor or waypoint) through their attributes sourceConnector and targetConnector
 
-    private ArrayList<Line2D> getSegments(Node node, HashMap<String, Point> points) {
+    public ArrayList<Line2D> getSegments(Node node, HashMap<String, Point> points) {
         ArrayList<Line2D> lines = new ArrayList<>();
         this.performTaskOnAllNodesWithTagName(node, "ownedDiagramElements", "com.genmymodel.graphic.uml:AssociationSegment", new OneTaskOneTagInterface() {
             @Override
@@ -159,8 +159,8 @@ public class SegmentIntersectionCounter extends GenericParser {
                     Line2D line = new Line2D.Float();
                     line.setLine(source.x, source.y, target.x, target.y);
                     lines.add(line);
-                    System.out.println(" ======= ONE SEGMENT FOUND =========");
-                    System.out.println("" + source.x + " , " + source.y + "   /   " + target.x + " , " + target.y);
+                    //System.out.println(" ======= ONE SEGMENT FOUND =========");
+                    //System.out.println("" + source.x + " , " + source.y + "   /   " + target.x + " , " + target.y);
                 }
             }
         });
@@ -170,7 +170,7 @@ public class SegmentIntersectionCounter extends GenericParser {
     // Gather segment points
     // These points can be anchors or waypoints.
 
-    private HashMap<String, Point> getAllSegmentPoints(Node node) {
+    public HashMap<String, Point> getAllSegmentPoints(Node node) {
         HashMap<String, Point> points = new HashMap<>();
         this.performTaskOnAllNodesWithTagName(node, "ownedDiagramElements", null, new OneTaskOneTagInterface() {
             @Override

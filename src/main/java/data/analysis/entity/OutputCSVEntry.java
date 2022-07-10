@@ -21,6 +21,9 @@ public class OutputCSVEntry {
     String trueHeight= "-1";
     String diagramUrl;
     String maxElementsInClass;
+    String nbIntersect;
+    String nbLinks;
+    String maxLinkForClass;
 
 
     public OutputCSVEntry() {
@@ -144,6 +147,30 @@ public class OutputCSVEntry {
         this.maxElementsInClass = maxElementsInClass;
     }
 
+    public String getNbIntersect() {
+        return nbIntersect;
+    }
+
+    public void setNbIntersect(String nbIntersect) {
+        this.nbIntersect = nbIntersect;
+    }
+
+    public String getNbLinks() {
+        return nbLinks;
+    }
+
+    public void setNbLinks(String nbLinks) {
+        this.nbLinks = nbLinks;
+    }
+
+    public String getMaxLinkForClass() {
+        return maxLinkForClass;
+    }
+
+    public void setMaxLinkForClass(String maxLinkForClass) {
+        this.maxLinkForClass = maxLinkForClass;
+    }
+
     public String toCSV() {
         return fileName + ';' +
                 projectId + ';' +
@@ -157,6 +184,10 @@ public class OutputCSVEntry {
                 trueWidth + ';' +
                 trueHeight + ";"+
                 maxElementsInClass + ";"+
+                nbIntersect + ";"+
+                nbLinks + ";"+
+                maxLinkForClass + ";"+
                 diagramUrl;
+
     }
 }

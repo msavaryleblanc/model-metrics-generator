@@ -12,9 +12,14 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import java.awt.*;
+import java.awt.geom.Line2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 public class CustomParser {
 
@@ -26,6 +31,7 @@ public class CustomParser {
     InterestingClassBuilder interestingClassBuilder;
     InterestingClassBuilder allClassLocationBuilder;
     InterestingClassBuilder maxElementsBuilder;
+    InterestingClassBuilder maxConnectedBuilder;
 
     public CustomParser() {
         heatMapBuilder = new HeatMapBuilder();
@@ -34,6 +40,7 @@ public class CustomParser {
         this.interestingClassBuilder = new InterestingClassBuilder();
         this.allClassLocationBuilder = new InterestingClassBuilder();
         this.maxElementsBuilder = new InterestingClassBuilder();
+        this.maxConnectedBuilder = new InterestingClassBuilder();
     }
 
 
@@ -58,6 +65,11 @@ public class CustomParser {
                     String projectId = inputDiagram.getFileName().split("-UML-")[1].replace(".xmi", "");
                     outputCSVEntry.setProjectId(projectId);
 
+                    if (inputDiagram.getProjectId() != null && !projectId.equals(inputDiagram.getProjectId())) {
+                        System.out.print("Skipping diagram");
+                        continue;
+                    }
+
                     String diagramId = contents.getAttributes().getNamedItem("xmi:id").getNodeValue();
 
                     if (inputDiagram.getDiagramId() != null && !diagramId.equals(inputDiagram.getDiagramId())) {
@@ -66,8 +78,19 @@ public class CustomParser {
                     }
 
 
+
+
                     outputCSVEntry.setDiagramId(diagramId);
                     outputCSVEntry.setDiagramUrl("https://app.genmymodel.com/api/projects/" + outputCSVEntry.getProjectId() + "/diagrams/" + diagramId + "/jpeg");
+                    //Association intersection
+                    SegmentIntersectionCounter segmentIntersectionCounter = new SegmentIntersectionCounter();
+                    HashMap<String, Point> points = segmentIntersectionCounter.getAllSegmentPoints(contents);
+                    ArrayList<Line2D> segments = segmentIntersectionCounter.getSegments(contents, points);
+                    outputCSVEntry.setNbIntersect(Integer.toString(segmentIntersectionCounter.computeIntersections(segments)));
+                    //System.out.println("number of intersections : " + outputCSVEntry.getNbIntersect());
+                    //System.out.println(outputCSVEntry.getDiagramUrl());
+
+
 
                     //Get owned elements of this specific diagram
                     List<OwnedDiagramElements> ownedDiagramElementsList = getChildOwnedDiagramElements(contents);
@@ -89,6 +112,8 @@ public class CustomParser {
                     }
 
                     List<OwnedDiagramElements> classLikeElements = new ArrayList<>();
+                    List<OwnedDiagramElements> linkLikeElements = new ArrayList<>();
+
                     for (OwnedDiagramElements ownedDiagramElements : ownedDiagramElementsList) {
                         switch (ownedDiagramElements.type) {
                             case "com.genmymodel.graphic.uml:ClassWidget":
@@ -100,31 +125,85 @@ public class CustomParser {
                             case "com.genmymodel.graphic.uml:CommentWidget":
                                 classLikeElements.add(ownedDiagramElements);
                                 break;
+                            case "com.genmymodel.graphic.uml:AssociationSegment":
+                            case "com.genmymodel.graphic.uml:GeneralizationSegment":
+                            case "com.genmymodel.graphic.uml:AssociationClassSegment":
+                            case "com.genmymodel.graphic.uml:DependencySegment":
+                            case "com.genmymodel.graphic.uml:UsageSegment":
+                            case "com.genmymodel.graphic.uml:InterfaceRealizationSegment":
+                            case "com.genmymodel.graphic.uml:InnerElementSegment":
+                                linkLikeElements.add(ownedDiagramElements);
+                                break;
                             default:
                                 //Do nothing
                                 break;
                         }
                     }
 
+                    //Handle total links
+                    Set<String> modelElements = new HashSet<>();
+                    for(OwnedDiagramElements ownedDiagramElements : linkLikeElements){
+                        modelElements.add(ownedDiagramElements.modelElement);
+                    }
 
+                    outputCSVEntry.setNbLinks(Integer.toString(modelElements.size()));
                     outputCSVEntry.setClassNb(Integer.toString(classLikeElements.size()));
-                    //System.out.println("nb:"+outputCSVEntry.getClassNb());
 
+
+                    //UML elements handling
                     List<PackagedElement> umlElements = getUMLElementsById(allOwnedElementsModelElements, dom, outputCSVEntry.getDiagramUrl());
+
                     List<DiagElementCSVEntry> diagElementCSVEntryList = new ArrayList<>();
+                    HashMap<String, Integer> connexionCounter = new HashMap<>();
                     PackagedElement elementWithMaxElements = null;
                     int maxElements = -1;
+
                     for (PackagedElement packagedElement : umlElements) {
+                        for(String connexionEnd : packagedElement.endType){
+                            connexionCounter.computeIfAbsent(connexionEnd, new Function<String, Integer>() {
+                                @Override
+                                public Integer apply(String s) {
+                                    return 0;
+                                }
+                            });
+                            connexionCounter.computeIfPresent(connexionEnd, new BiFunction<String, Integer, Integer>() {
+                                @Override
+                                public Integer apply(String s, Integer integer) {
+                                    return integer + 1;
+                                }
+                            });
+                        }
+
                         if (packagedElement.getDiagElementCSVEntryList().size() > maxElements) {
                             maxElements = packagedElement.getDiagElementCSVEntryList().size();
                             elementWithMaxElements = packagedElement;
                         }
                         diagElementCSVEntryList.addAll(packagedElement.getDiagElementCSVEntryList());
                     }
+
                     for (DiagElementCSVEntry entry : diagElementCSVEntryList) {
                         entry.setProjectId(projectId);
                         entry.setDiagramId(diagramId);
                     }
+
+                    String maxConnectedElementId = "";
+                    int maxConnexion = -1;
+                    for(Map.Entry<String, Integer> entry : connexionCounter.entrySet()){
+
+                        if(entry.getValue() > maxConnexion){
+                            maxConnexion = entry.getValue();
+                            maxConnectedElementId = entry.getKey();
+                        }
+                    }
+                    outputCSVEntry.setMaxLinkForClass(Integer.toString(maxConnexion));
+                    OwnedDiagramElements maxConnectedClass = null;
+                    for(OwnedDiagramElements ownedDiagramElements : classLikeElements){
+                        if(ownedDiagramElements.modelElement.equals(maxConnectedElementId)){
+                            maxConnectedClass = ownedDiagramElements;
+                        }
+                    }
+
+
                     outputCSVEntry.setDiagElementCSVEntryList(diagElementCSVEntryList);
                     outputCSVEntry.setMaxElementsInClass(Integer.toString(maxElements));
 
@@ -167,13 +246,15 @@ public class CustomParser {
                         OwnedDiagramElements maxElementsClass = null;
                         for (OwnedDiagramElements ownedDiagramElements : classLikeElements) {
                             if (ownedDiagramElements.modelElement.equals(elementWithMaxElements.id)) {
-                                System.out.println("gotcha");
                                 maxElementsClass = ownedDiagramElements;
                                 break;
                             }
                         }
                         if (maxElementsClass != null) {
                             maxElementsBuilder.parseClassFitDiagramInBox(sizePojo, maxElementsClass);
+                        }
+                        if (maxConnectedClass != null) {
+                            maxConnectedBuilder.parseClassFitDiagramInBox(sizePojo, maxConnectedClass);
                         }
 
                         //For all
@@ -216,6 +297,7 @@ public class CustomParser {
                 colorCSVEntry.setColor(ownedDiagramElements.color.toUpperCase(Locale.ROOT));
                 colorCSVEntry.setElementType(ownedDiagramElements.type);
                 colorCSVEntry.setFileName(outputCSVEntry.getFileName());
+                colorCSVEntry.setDiagramId(outputCSVEntry.getDiagramId());
                 colorCSVEntry.setProjectId(outputCSVEntry.getProjectId());
                 return colorCSVEntry;
 

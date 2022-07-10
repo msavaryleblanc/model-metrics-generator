@@ -11,7 +11,6 @@ public class AssociationElement extends PackagedElement {
 
     String associationType;
 
-
     public AssociationElement(Node node) {
         super(node);
 
@@ -32,6 +31,7 @@ public class AssociationElement extends PackagedElement {
 
             if ("ownedEnd".equals(nodeItem.getNodeName())) {
                 String aggregationValue = getAttributeFromNode(nodeItem, "aggregation");
+                endType.add(getAttributeFromNode(nodeItem, "type"));
 
                 if (aggregationValue != null) {
                     associationType = aggregationValue;
@@ -47,6 +47,7 @@ public class AssociationElement extends PackagedElement {
         associationCSVEntry.setType(associationType);
         this.diagElementCSVEntryList.add(associationCSVEntry);
 
+        //System.out.println(endType);
     }
 
 

@@ -13,7 +13,6 @@ public class ClassElement extends PackagedElement {
     public List<OwnedAttribute> ownedAttributeList;
     //public List<OwnedOperation> ownedAttributeList;
 
-
     public ClassElement(Node node) {
         super(node);
 
@@ -71,6 +70,8 @@ public class ClassElement extends PackagedElement {
 
 
             if ("generalization".equals(nodeItem.getNodeName())) {
+                endType.add(getAttributeFromNode(nodeItem, "general"));
+                endType.add(getAttributeFromNode(nodeItem, "specific"));
                 DiagElementCSVEntry diagElementCSVEntry = new DiagElementCSVEntry();
                 diagElementCSVEntry.setElementId(getAttributeFromNode(nodeItem, "xmi:id"));
                 diagElementCSVEntry.setElementType("generalization");

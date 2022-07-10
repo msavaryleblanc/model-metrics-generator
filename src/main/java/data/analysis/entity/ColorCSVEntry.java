@@ -3,6 +3,7 @@ package main.java.data.analysis.entity;
 public class ColorCSVEntry {
 
     String fileName;
+    String diagramId;
     String projectId;
     String elementType;
     String color;
@@ -16,12 +17,12 @@ String url;
         this.fileName = fileName;
     }
 
-    public String getProjectId() {
-        return projectId;
+    public String getDiagramId() {
+        return diagramId;
     }
 
-    public void setProjectId(String projectId) {
-        this.projectId = projectId;
+    public void setDiagramId(String diagramId) {
+        this.diagramId = diagramId;
     }
 
     public String getElementType() {
@@ -48,9 +49,18 @@ String url;
         this.url = url;
     }
 
+    public String getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(String projectId) {
+        this.projectId = projectId;
+    }
+
     public String toCSV() {
         return fileName + ';' +
                 projectId + ';' +
+                diagramId + ';' +
                 elementType + ';' +
                 color + ';' +
                 url;

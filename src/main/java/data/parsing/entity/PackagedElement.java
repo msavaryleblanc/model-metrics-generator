@@ -15,6 +15,8 @@ public class PackagedElement extends BaseNode {
     
     public List<DiagElementCSVEntry> diagElementCSVEntryList;
 
+    public List<String> endType = new ArrayList<>();
+
 
 
     public PackagedElement(org.w3c.dom.Node node) {

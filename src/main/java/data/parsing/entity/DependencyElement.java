@@ -6,12 +6,13 @@ import org.w3c.dom.NodeList;
 
 public class DependencyElement extends PackagedElement {
 
-    String associationType;
 
 
     public DependencyElement(Node node) {
         super(node);
 
+        endType.add(getAttributeFromNode(node, "client"));
+        endType.add(getAttributeFromNode(node, "supplier"));
 
         DiagElementCSVEntry associationCSVEntry = new DiagElementCSVEntry();
         associationCSVEntry.setElementId(this.id);
