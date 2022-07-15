@@ -1,0 +1,16 @@
+"","element_type","n"
+"1","com.genmymodel.graphic.uml:ClassWidget",42835
+"2","com.genmymodel.graphic.uml:PackageWidget",3154
+"3","com.genmymodel.graphic.uml:InterfaceWidget",2020
+"4","com.genmymodel.graphic.uml:EnumerationWidget",1148
+"5","com.genmymodel.graphic.uml:AssociationSegment",595
+"6","com.genmymodel.graphic.uml:CommentWidget",535
+"7","com.genmymodel.graphic.uml:DataTypeWidget",347
+"8","com.genmymodel.graphic.uml:GeneralizationSegment",303
+"9","com.genmymodel.graphic.uml:DependencySegment",58
+"10","com.genmymodel.graphic.uml:InterfaceRealizationSegment",53
+"11","com.genmymodel.graphic.uml:UsageSegment",45
+"12","com.genmymodel.graphic.uml:AssociationClassWidget",18
+"13","com.genmymodel.graphic.uml:InstanceWidget",11
+"14","com.genmymodel.graphic.uml:AssociationClassSegment",7
+"15","com.genmymodel.graphic.uml:InnerElementSegment",1
