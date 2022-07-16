@@ -59,6 +59,9 @@ public class OutputCSVWriter {
             BufferedWriter writer = new BufferedWriter(new FileWriter("csv/csv_report_elements.csv", true));
             for(DiagElementCSVEntry entry : entries) {
                 writer.write(entry.toCSV() + "\n");
+                if(entry.getProjectId().equals("_eIeWsJ6fEeeb85PzLEIFXg")){
+                    System.out.println(entry.toCSV());
+                }
             }
             writer.close();
         } catch (IOException e) {

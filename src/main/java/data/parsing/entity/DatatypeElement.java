@@ -13,7 +13,7 @@ public class DatatypeElement extends PackagedElement {
 
         DiagElementCSVEntry classCSVEntry = new DiagElementCSVEntry();
         classCSVEntry.setElementId(this.id);
-        classCSVEntry.setElementType("enumeration");
+        classCSVEntry.setElementType("datatype");
         classCSVEntry.setName(this.name);
         classCSVEntry.setFormat(getFormatOfAttribute(classCSVEntry.getName()));
         classCSVEntry.setNameBeginning(getNameBeginning(classCSVEntry.getName()));
@@ -38,8 +38,16 @@ public class DatatypeElement extends PackagedElement {
             if (name.contains("_")) {
                 return "snake_case";
             }
-            if (name.toUpperCase(Locale.ROOT).equals(name)) {
-                return "uppercase";
+            String shortened = name;
+
+            if(name.length() > 1) {
+                shortened = name.substring(1);
+            }
+            if(shortened.toLowerCase(Locale.ROOT).equals(shortened)){
+                return "single_lower";
+            }
+            if (shortened.toUpperCase(Locale.ROOT).equals(shortened)) {
+                return "single_upper";
             }
             return "camel_case";
         }

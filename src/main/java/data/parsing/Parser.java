@@ -23,7 +23,6 @@ import java.util.List;
 public class Parser {
 
     public static void main(String[] args) throws JsonProcessingException {
-
         List<String> files = new XmiFileListReader().getFilenames();
         //files = files.subList(0, 200);
         List<InputDiagram> inputDiagrams = new ArrayList<>();
@@ -35,11 +34,29 @@ public class Parser {
         parseFiles(inputDiagrams, "", true, true);
 
 
+        /*InputCSVReader inputCSVReader = new InputCSVReader();
+        parseFiles(inputCSVReader.getInputDiagrams(), "", true, true);
+*/
 
-        generateHeatmapsForAllNumbers();
+        //generateHeatmapsForAllNumbers();
+        //lookForFile();
 
     }
 
+public static void lookForFile(){
+
+    List<InputDiagram> inputDiagrams = new ArrayList<>();
+    InputDiagram inputDiagram = new InputDiagram();
+
+    inputDiagram.setFileName("3985-UML-_eIeWsJ6fEeeb85PzLEIFXg.xmi");
+    //inputDiagram.setDiagramId("_Vo2FseNZEeiZY7VjYQykuQ");
+    inputDiagram.setProjectId("_eIeWsJ6fEeeb85PzLEIFXg");
+
+
+    inputDiagrams.add(inputDiagram);
+    parseFiles(inputDiagrams, "", false, true);
+
+}
 
     private static void parseFiles(List<InputDiagram> fileNames, String heatprefix, boolean shouldDisplay, boolean shouldWrite) {
         //new InputCSVReader();

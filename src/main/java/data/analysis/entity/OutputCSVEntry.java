@@ -16,15 +16,15 @@ public class OutputCSVEntry {
     String girdColumns;
     String gridRatio;
     String width = "-1";
-    String height= "-1";
-    String trueWidth= "-1";
-    String trueHeight= "-1";
+    String height = "-1";
+    String trueWidth = "-1";
+    String trueHeight = "-1";
     String diagramUrl;
     String maxElementsInClass;
     String nbIntersect;
     String nbLinks;
     String maxLinkForClass;
-
+    String author;
 
     public OutputCSVEntry() {
         this.colorCSVEntryList = new ArrayList<>();
@@ -171,23 +171,56 @@ public class OutputCSVEntry {
         this.maxLinkForClass = maxLinkForClass;
     }
 
-    public String toCSV() {
-        return fileName + ';' +
-                projectId + ';' +
-                diagramId + ';' +
-                classNb + ';' +
-                gridLines + ';' +
-                girdColumns + ';' +
-                gridRatio + ';' +
-                width + ';' +
-                height + ';' +
-                trueWidth + ';' +
-                trueHeight + ";"+
-                maxElementsInClass + ";"+
-                nbIntersect + ";"+
-                nbLinks + ";"+
-                maxLinkForClass + ";"+
-                diagramUrl;
+    public String getAuthor() {
+        return author;
+    }
 
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
+    public String toCSV() {
+        return fileName + '\t' +
+                projectId + '\t' +
+                diagramId + '\t' +
+                classNb + '\t' +
+                gridLines + '\t' +
+                girdColumns + '\t' +
+                gridRatio + '\t' +
+                width + '\t' +
+                height + '\t' +
+                trueWidth + '\t' +
+                trueHeight + "\t" +
+                maxElementsInClass + "\t" +
+                nbIntersect + "\t" +
+                nbLinks + "\t" +
+                maxLinkForClass + "\t" +
+                diagramUrl + "\t" +
+                author;
+
+    }
+
+    @Override
+    public String toString() {
+        return "OutputCSVEntry{" +
+                "colorCSVEntryList=" + colorCSVEntryList +
+                ", diagElementCSVEntryList=" + diagElementCSVEntryList +
+                ", fileName='" + fileName + '\'' +
+                ", projectId='" + projectId + '\'' +
+                ", diagramId='" + diagramId + '\'' +
+                ", classNb='" + classNb + '\'' +
+                ", gridLines='" + gridLines + '\'' +
+                ", girdColumns='" + girdColumns + '\'' +
+                ", gridRatio='" + gridRatio + '\'' +
+                ", width='" + width + '\'' +
+                ", height='" + height + '\'' +
+                ", trueWidth='" + trueWidth + '\'' +
+                ", trueHeight='" + trueHeight + '\'' +
+                ", diagramUrl='" + diagramUrl + '\'' +
+                ", maxElementsInClass='" + maxElementsInClass + '\'' +
+                ", nbIntersect='" + nbIntersect + '\'' +
+                ", nbLinks='" + nbLinks + '\'' +
+                ", maxLinkForClass='" + maxLinkForClass + '\'' +
+                '}';
     }
 }

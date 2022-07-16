@@ -21,86 +21,141 @@ library(tidyr)
 library(knitr)
 library(plotly)
 if (!require("processx")) install.packages("processx")
-knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
+knitr::opts_chunk$set(warning = TRUE, message = TRUE) 
 
-color_csv<-read.csv(file = "../../csv/csv_report_color.csv", skip='0', sep = ";", header = FALSE)
-report <- read.csv(file = "../../csv/csv_report.csv", skip='0', sep = ";", header = FALSE)
-elements<-read.csv(file = "../../csv/csv_report_elements.csv", skip='0', sep = ";", header = FALSE)
+color_csv<-read.csv(file = "../../csv/csv_report_color.csv", skip='0', sep = "\t", header = FALSE)
+report <- read.csv(file = "../../csv/csv_report.csv", skip='0', sep = "\t", header = FALSE)
+elements<-read.csv(file = "../../csv/csv_report_elements.csv", skip='0', sep = "\t", header = FALSE)
+
+
+
 
 colnames(color_csv) <- c("filename","project_id", "diagram_id","element_type","color","url")
 colnames(elements)<- c("project_id","diagram_id","element_id","type","name","in_class","asso_type","visibility","format", "begin_format")
-colnames(report)<- c("filename","project_id","diagram_id","nb_class","grid_lines","grid_columns","grid_ratio","width","height","true_width","true_height","max_elt_in_class","nb_intersect","nb_links","max_link_for_class","diagram_url")
+colnames(report)<- c("filename","project_id","diagram_id","nb_class","grid_lines","grid_columns","grid_ratio","width","height","true_width","true_height","max_elt_in_class","nb_intersect","nb_links","max_link_for_class","diagram_url", "author")
 
 
-elements <- elements %>% filter(type != "", !grepl(" ", type, fixed = TRUE))
-elements <- elements %>% filter(format %in% c('camel_case', 'snake_case', 'uppercase', 'with_spaces'))
-elements <- elements %>% filter(!grepl("undefined", begin_format, fixed = TRUE))
+elements <- elements %>% mutate(identifiant = paste(project_id, diagram_id))
+
+report <- report %>% mutate(identifiant = paste(project_id, diagram_id))
 
 
-report <- report %>% filter(nb_class > 0, nb_class < 100)
+#Filtering elements
+annotated_elements <- elements %>% group_by(identifiant, type) %>% tally() %>% mutate(type_filtre=ifelse(grepl("class",type),"class_diag",ifelse(grepl("attribute",type),"class_diag",ifelse(grepl("operation",type),"class_diag",ifelse(grepl("uml:Actor",type),"use_case_diag",ifelse(grepl("uml:Component",type),"use_case_diag",ifelse(grepl("uml:UseCase",type),"use_case_diag",ifelse(grepl("uml:CommunicationPath",type),"deploy_diag",ifelse(grepl("uml:Device",type),"deploy_diag",ifelse(grepl("uml:ExecutionEnvironment",type),"deploy_diag",ifelse(grepl("usage",type),"class_diag",ifelse(grepl("interface",type),"class_diag",ifelse(grepl("enumeration",type),"class_diag",ifelse(grepl("uml:Node",type),"deploy_diag",ifelse(grepl("instance",type),"object_diag",ifelse(grepl("package",type),"package","autre"))))))))))))))))
+
+filtered_elements <- annotated_elements %>% filter(grepl("class_diag",type_filtre)) %>% group_by(identifiant) %>% tally()
+
+elts <- elements %>% filter(grepl("_52q-EIQqEDWouOUxqQVIKw",element_id))
+report_clean <- report %>% filter((identifiant %in% filtered_elements$identifiant))
+elements_clean <- elements %>% filter((identifiant %in% report_clean$identifiant))
 
 
 
-colors_by_diagram <- color_csv %>% group_by(project_id, element_type) %>% tally()
-analysis_elements <- elements %>% group_by(diagram_id, type) %>% tally()
-type_of_elements <- elements %>% group_by(type) %>% tally()
+
+```
+
+
+
+
+# Hybrid diagrams
+```{r}
+hybrid_diagrams <- elements %>% filter(grepl("uml:",type), !grepl("uml:InformationFlow",type)) %>% group_by(project_id, diagram_id) %>% summarize(identifiant = paste(project_id, diagram_id)) %>% ungroup() %>% distinct()
+
+ok_diagrams <- elements %>% filter(identifiant %in% hybrid_diagrams$identifiant, type %in% list("class","attribute","operation"))
+
+#hybrid_elements <- elements %>% filter(identifiant %in% ok_diagrams$identifiant) %>% group_by(identifiant, type) %>% tally() %>% mutate(type_filtre=ifelse(grepl("class",type),"class_diag",ifelse(grepl("attribute",type),"class_diag",ifelse(grepl("operation",type),"class_diag",ifelse(grepl("uml:Actor",type),"use_case_diag",ifelse(grepl("uml:Component",type),"use_case_diag",ifelse(grepl("uml:UseCase",type),"use_case_diag",ifelse(grepl("uml:CommunicationPath",type),"deploy_diag",ifelse(grepl("uml:Device",type),"deploy_diag",ifelse(grepl("uml:ExecutionEnvironment",type),"deploy_diag",ifelse(grepl("usage",type),"class_diag",ifelse(grepl("interface",type),"deploy_diag",ifelse(grepl("enumeration",type),"class_diag",ifelse(grepl("uml:Node",type),"deploy_diag","autre"))))))))))))))
+annotated_elements <- elements %>% group_by(identifiant, type) %>% tally() %>% mutate(type_filtre=ifelse(grepl("class",type),"class_diag",ifelse(grepl("attribute",type),"class_diag",ifelse(grepl("operation",type),"class_diag",ifelse(grepl("uml:Actor",type),"use_case_diag",ifelse(grepl("uml:Component",type),"use_case_diag",ifelse(grepl("uml:UseCase",type),"use_case_diag",ifelse(grepl("uml:CommunicationPath",type),"deploy_diag",ifelse(grepl("uml:Device",type),"deploy_diag",ifelse(grepl("uml:ExecutionEnvironment",type),"deploy_diag",ifelse(grepl("usage",type),"class_diag",ifelse(grepl("interface",type),"class_diag",ifelse(grepl("enumeration",type),"class_diag",ifelse(grepl("uml:Node",type),"deploy_diag",ifelse(grepl("instance",type),"object_diag",ifelse(grepl("package",type),"package","autre"))))))))))))))))
+
+
+autres <- annotated_elements %>% filter(grepl("autre",type_filtre)) %>% group_by(type) %>% tally()
+
+#collapsed <- hybrid_elements %>% group_by(identifiant, type_filtre) %>% arrange(type_filtre) %>% tally() %>% filter(!grepl("autre",type_filtre))  %>% summarize(types = paste0(type_filtre, collapse = " ")) %>% group_by(types) %>% tally() %>% filter(grepl("class_diag",types))
+collapsed <- annotated_elements %>% group_by(identifiant, type_filtre) %>% arrange(type_filtre) %>% tally() %>% filter(!grepl("autre",type_filtre))%>% filter(!grepl("package",type_filtre)) %>% summarize(types = paste0(type_filtre, collapse = " ")) %>% group_by(types) %>% tally() %>% filter(grepl("class_diag",types))
+
+noelts <- annotated_elements %>% group_by(identifiant, type_filtre) %>% arrange(type_filtre) %>% tally() %>% filter(!grepl("autre",type_filtre))  %>% summarize(types = paste0(type_filtre, collapse = " ")) %>% group_by(types) %>% tally()
+
+no_elts_final <- report %>% filter(!(identifiant %in% noelts$identifiant))
+
+write.csv(no_elts_final,"generated_csv/group_elements.csv", row.names = TRUE)
+
+
+```
+
+# Authors
+```{r}
+authors <- report_clean %>% group_by(author) %>% tally()
+#26.000 authors and 57.000 diagrams from unknown authors
 
 
 ```
 
 # Total elements
 ```{r}
-temp <- elements %>% group_by(type) %>% tally() %>% mutate(formatted = format(round(as.numeric(n), 1), nsmall=0, big.mark=",", trim = TRUE)) %>% arrange(desc(n)) %>% ungroup()
-fig <- plot_ly(temp, x = ~type, y = ~n, name = "SF Zoo",type = "bar", textposition = 'outside', textangle="-45", text = ~formatted#,marker = list(color = 'rgb(158,202,225)',line = list(color = 'rgb(8,48,107)', width = 1.5))
-             ) %>% 
-  layout( title = "UML elements in diagrams", xaxis = list(categoryorder = "array", categoryarray = ~n), yaxis =list(range=c(0,2200000))
-  )
+
+temp <- elements_clean %>% mutate(type_total = ifelse(grepl("association",type),paste(type, asso_type), type)) %>% group_by(type_total) %>% tally() %>% arrange(desc(n)) %>% ungroup()
 
 write.csv(temp,"generated_csv/total_elements.csv", row.names = TRUE)
 
-fig <- fig %>% layout(uniformtext=list(minsize=12, mode = "show"))
-
-fig
 
 ```
+
 
 # Number of Formatting
 ```{r}
-temp <- elements %>% filter(!grepl("enumeration", type, fixed = TRUE)) %>% group_by(project_id, diagram_id, format) %>% tally() %>% group_by(project_id, diagram_id) %>% summarize(nb_format = n()) %>% group_by(nb_format) %>% tally()
+elements_filtered <- elements_clean %>% filter(type != "", !grepl(" ", type, fixed = TRUE))
+elements_filtered <- elements_filtered %>% filter(format %in% c('camel_case', 'snake_case', 'uppercase', 'with_spaces'))
+elements_filtered <- elements_filtered %>% filter(!grepl("undefined", begin_format, fixed = TRUE))
+elements_filtered <- elements_filtered %>% mutate(format=ifelse(grepl("uppercase",format),"camel_case", format))
 
-fig <- plot_ly(temp, x = ~nb_format, y = ~n, name = "SF Zoo",type = "bar", textposition = 'outside', textangle="-45", text = ~n) %>% 
-  layout(title = "UML elements in diagrams", xaxis = list(categoryorder = "array", categoryarray = ~n))
-
-fig <- fig %>% layout(uniformtext=list(minsize=12, mode = "show"))
-
-write.csv(temp,"generated_csv/number_of_formatting.csv", row.names = TRUE)
+multi_format <- elements_filtered %>% group_by(identifiant, format, type) %>% tally() %>% arrange(type) %>% group_by(identifiant, type) %>% summarize(formats = paste0(format, collapse = " + ")) %>% group_by(type, formats) %>% tally() %>% spread(formats, n)
 
 
-fig
+write.csv(multi_format,"generated_csv/formatting_groups.csv", row.names = TRUE)
 
-```
-
-# Format
-```{r}
-nb_elts <- elements %>% group_by(type) %>% summarize(total_elt = n()) 
-
-temp <- full_join(elements, nb_elts, "type") %>% group_by(type, format, total_elt) %>% tally() %>% mutate(ratio = 100*n/total_elt)
-
-fig <- plot_ly(temp, x = ~type, y = ~ratio, color = ~format,type = "bar", textposition = 'outside') %>% 
-  layout(title = "UML elements in diagrams", xaxis = list(categoryorder = "array", categoryarray = ~n), barmode = 'stack')
-
-write.csv(temp,"generated_csv/formating_distribution_by_element.csv", row.names = TRUE)
+#hybrid_or_not <- multi_format %>% mutate(is_hybrid = ifelse(grepl("+",formats, fixed = TRUE),TRUE, FALSE)) %>% group_by((is_hybrid)) %>% summarize(total = sum(n))
 
 
-fig
+#hybrid_diagrams <- elements_clean %>% filter(grepl("uml:",type)) %>% group_by(project_id, diagram_id ) %>% summarize(identifiant = paste(project_id, diagram_id)) %>% ungroup() %>% distinct()
+
+
+#elements_filtered <- elements %>% filter(type != "", !grepl(" ", type, fixed = TRUE))
+#elements_filtered <- elements_filtered %>% filter(format %in% c('camel_case', 'snake_case', 'uppercase', 'with_spaces'))
+#elements_filtered <- elements_filtered %>% filter(!grepl("undefined", begin_format, fixed = TRUE))
+
+
+
+#temp <- elements_filtered %>% filter(!grepl("enumeration", type, fixed = TRUE)) %>% group_by(project_id, diagram_id, format) %>% tally() %>% group_by(project_id, diagram_id) %>% summarize(nb_format = n()) %>% group_by(nb_format) %>% tally()
+
+#fig <- plot_ly(temp, x = ~nb_format, y = ~n, name = "SF Zoo",type = "bar", textposition = 'outside', textangle="-45", text = ~n) %>% 
+#  layout(title = "UML elements in diagrams", xaxis = list(categoryorder = "array", categoryarray = ~n))
+#
+#fig <- fig %>% layout(uniformtext=list(minsize=12, mode = "show"))
+
+#write.csv(temp,"generated_csv/number_of_formatting.csv", row.names = TRUE)
+
+
+#fig
+
+
+#nb_elts <- elements %>% group_by(type) %>% summarize(total_elt = n()) 
+
+#temp <- full_join(elements, nb_elts, "type") %>% group_by(type, format, total_elt) %>% tally() %>% mutate(ratio = 100*n/total_elt)
+
+#fig <- plot_ly(temp, x = ~type, y = ~ratio, color = ~format,type = "bar", textposition = 'outside') %>% 
+#  layout(title = "UML elements in diagrams", xaxis = list(categoryorder = "array", categoryarray = ~n), barmode = 'stack')
+
+#write.csv(temp,"generated_csv/formating_distribution_by_element.csv", row.names = TRUE)
+
+
+#fig
 
 ```
 
 # Begin Maj
 ```{r}
-nb_elts <- elements %>% group_by(type) %>% summarize(total_elt = n()) 
+nb_elts <- elements_clean %>% group_by(type) %>% summarize(total_elt = n()) 
 
-temp <- full_join(elements, nb_elts, "type") %>% group_by(type, begin_format, total_elt) %>% tally() %>% mutate(ratio = 100*n/total_elt)
+temp <- full_join(elements_clean, nb_elts, "type") %>% group_by(type, begin_format, total_elt) %>% tally() %>% mutate(ratio = 100*n/total_elt)
 
 fig <- plot_ly(temp, x = ~type, y = ~ratio, color = ~begin_format,type = "bar", textposition = 'outside') %>% 
   layout(title = "UML elements in diagrams", xaxis = list(categoryorder = "array", categoryarray = ~n), barmode = 'stack')
@@ -109,6 +164,15 @@ write.csv(temp,"generated_csv/uppercase_begin_distribution_by_element.csv", row.
 
 
 fig
+
+```
+
+# Top couleurs
+```{r}
+tot_couleur <- color_csv %>% group_by(project_id, diagram_id) %>% tally()
+nb_elts <- color_csv %>% group_by(project_id, diagram_id, color) %>% tally() %>% group_by(color) %>% tally() %>%arrange(desc(n))
+
+write.csv(nb_elts,"generated_csv/top_couleurs.csv", row.names = TRUE)
 
 ```
 
@@ -157,21 +221,21 @@ fig
 ```{r}
 
 
-nb_elts <- color_csv %>% group_by(project_id, diagram_id, color, url) %>% tally()%>% group_by(project_id, diagram_id, url) %>% summarize(nb_color = n(), identifiant = paste(project_id, diagram_id)) %>% ungroup()
-nb_elts <- nb_elts %>% distinct(identifiant, nb_color)
-report_augmented <- report %>% mutate(identifiant = paste(project_id, diagram_id))
+#nb_elts <- color_csv %>% group_by(project_id, diagram_id, color, url) %>% tally()%>% group_by(project_id, diagram_id, url) %>% summarize(nb_color = n(), identifiant = paste(project_id, diagram_id)) %>% ungroup()
+#nb_elts <- nb_elts %>% distinct(identifiant, nb_color)
+#report_augmented <- report %>% mutate(identifiant = paste(project_id, diagram_id))
 
-elts_total <- left_join(report_augmented, nb_elts, "identifiant")
+#elts_total <- left_join(report_augmented, nb_elts, "identifiant")
 
-elts_total <- elts_total %>% replace_na(list(nb_color=0)) %>% mutate(has_color = nb_color > 0) %>% group_by(nb_class, has_color) %>% tally() %>% full_join(nb_diags, "nb_class") %>% mutate(ratio = n/total_diag)
+#elts_total <- elts_total %>% replace_na(list(nb_color=0)) %>% mutate(has_color = nb_color > 0) %>% group_by(nb_class, has_color) %>% tally() %>% full_join(nb_diags, "nb_class") %>% mutate(ratio = n/total_diag)
 
-fig <- plot_ly(elts_total, x = ~nb_class, y = ~ratio, color = ~has_color,type = "bar", textposition = 'outside') %>% 
-  layout(title = "UML elements in diagrams", xaxis = list(categoryorder = "array", categoryarray = ~n), barmode = 'stack')
+#fig <- plot_ly(elts_total, x = ~nb_class, y = ~ratio, color = ~has_color,type = "bar", textposition = 'outside') %>% 
+#  layout(title = "UML elements in diagrams", xaxis = list(categoryorder = "array", categoryarray = ~n), barmode = 'stack')
 
-write.csv(elts_total,"generated_csv/colored_ratio_by_class.csv", row.names = TRUE)
+#write.csv(elts_total,"generated_csv/colored_ratio_by_class.csv", row.names = TRUE)
 
 
-fig
+#fig
 
 ```
 
@@ -182,9 +246,56 @@ nb_elts <- color_csv %>% group_by(project_id, diagram_id, color, url) %>% tally(
 
 ```
 
+# Mean by class nb
+```{r}
+
+nb_diags <- report_clean %>% group_by(nb_class) %>% tally()
+nb_elts <- elements_clean %>% group_by(identifiant, type) %>% tally() %>% spread(type, n) %>% replace_na(list(attribute = 0, operation = 0))
+full_annotated <- left_join(nb_elts, report_clean, "identifiant") %>% group_by(nb_class) %>% summarize(mean_att = mean(attribute), mean_ope = mean(operation)) %>% filter(nb_class > 0, nb_class < 100, mean_ope < 150, mean_att < 150)
+
+fig <- plot_ly(full_annotated, x = ~nb_class) 
+fig <- fig %>% add_trace(y = ~mean_ope, name = 'ope',mode = 'markers')
+fig <- fig %>% add_trace(y = ~mean_att, name = 'attr',mode = 'markers')
+
+write.csv(full_annotated,"generated_csv/mean_att_ope_by_class.csv", row.names = TRUE)
+
+fig
+
+```
+
+
+# Attributes vs operations full diag
+```{r}
+
+nb_elts <- elements_clean %>% group_by(identifiant, type) %>% tally() %>% spread(type, n)
+nb_elts <- nb_elts %>% replace_na(list(attribute = 0, operation = 0))
+
+calcul <- nb_elts %>% group_by(attribute) %>% summarize(moy_ope = mean(operation)) %>% filter(attribute <300, moy_ope < 300)
+
+fig <- plot_ly(calcul, x = ~attribute, y = ~moy_ope) 
+write.csv(calcul,"generated_csv/ope_by_class_full_diag.csv", row.names = TRUE)
+
+fig
+
+```
+# Attributes vs operations by class
+```{r}
+
+nb_elts <- elements_clean %>% group_by(in_class, type) %>% tally() %>% spread(type, n)
+nb_elts <- nb_elts %>% replace_na(list(attribute = 0, operation = 0))
+
+calcul <- nb_elts %>% group_by(attribute) %>% summarize(moy_ope = mean(operation)) %>% filter(attribute <100, moy_ope < 100)
+
+fig <- plot_ly(calcul, x = ~attribute, y = ~moy_ope) 
+write.csv(calcul,"generated_csv/ope_by_class_by_class.csv", row.names = TRUE)
+
+fig
+
+```
+
 # Total diagrams / nb class
 ```{r}
-nb_elts <- report %>% group_by(nb_class) %>% tally()
+nb_elts <- report_clean %>% group_by(nb_class) %>% tally()
 
 fig <- plot_ly(nb_elts, x = ~nb_class, y = ~n,type = "bar") 
 write.csv(nb_elts,"generated_csv/nb_class.csv", row.names = TRUE)
@@ -195,7 +306,7 @@ fig
 
 # Total diagrams / nb links
 ```{r}
-nb_elts <- report %>% group_by(nb_links) %>% tally()
+nb_elts <- report_clean %>% group_by(nb_links) %>% tally()
 
 fig <- plot_ly(nb_elts, x = ~nb_links, y = ~n,type = "bar") 
 write.csv(nb_elts,"generated_csv/nb_elts.csv", row.names = TRUE)
@@ -206,7 +317,7 @@ fig
 
 # Intersect vs links
 ```{r}
-nb_elts <- report %>% group_by(nb_links) %>% filter(nb_intersect < 50) %>% summarize(mean_inter = mean(nb_intersect)) 
+nb_elts <- report_clean %>% group_by(nb_links) %>% filter(nb_intersect < 50) %>% summarize(mean_inter = mean(nb_intersect)) 
 write.csv(nb_elts,"generated_csv/intersect_by_links.csv", row.names = TRUE)
 
 fig <- plot_ly(nb_elts, x = ~nb_links, y = ~mean_inter)
@@ -217,7 +328,7 @@ fig
 
 # Links vs class
 ```{r}
-nb_elts <- report %>% filter(nb_class < 100) %>% group_by(nb_class) %>% summarize(mean_links = mean(nb_links)) 
+nb_elts <- report_clean %>% filter(nb_class < 100) %>% group_by(nb_class) %>% summarize(mean_links = mean(nb_links)) 
 
 fig <- plot_ly(nb_elts, x = ~nb_class, y = ~mean_links)
 write.csv(nb_elts,"generated_csv/links_by_class", row.names = TRUE)
@@ -227,7 +338,7 @@ fig
 ```
 # max connect vs nb_class
 ```{r}
-nb_elts <- report %>% filter(nb_class < 100) %>% group_by(nb_class) %>% summarize(mean_max_connect = mean(max_link_for_class)) 
+nb_elts <- report_clean %>% filter(nb_class < 100) %>% group_by(nb_class) %>% summarize(mean_max_connect = mean(max_link_for_class)) 
 
 fig <- plot_ly(nb_elts, x = ~nb_class, y = ~mean_max_connect)
 write.csv(nb_elts,"generated_csv/mean_max_connect_by_class", row.names = TRUE)
@@ -238,7 +349,7 @@ fig
 
 # max elt in class vs nb_class
 ```{r}
-nb_elts <- report %>% filter(nb_class < 100) %>% group_by(nb_class) %>% summarize(max_elt = mean(max_elt_in_class)) 
+nb_elts <- report_clean %>% filter(nb_class < 100) %>% group_by(nb_class) %>% summarize(max_elt = mean(max_elt_in_class)) 
 
 fig <- plot_ly(nb_elts, x = ~nb_class, y = ~max_elt)
 

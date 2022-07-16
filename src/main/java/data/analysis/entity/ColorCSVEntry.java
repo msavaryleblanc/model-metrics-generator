@@ -58,11 +58,11 @@ String url;
     }
 
     public String toCSV() {
-        return fileName + ';' +
-                projectId + ';' +
-                diagramId + ';' +
-                elementType + ';' +
-                color + ';' +
+        return fileName + '\t' +
+                projectId + '\t' +
+                diagramId + '\t' +
+                elementType + '\t' +
+                color + '\t' +
                 url;
     }
 }

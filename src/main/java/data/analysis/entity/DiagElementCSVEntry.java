@@ -94,18 +94,19 @@ public class DiagElementCSVEntry {
     }
 
     public String toCSV() {
-        return projectId + ';' +
-                diagramId + ';' +
-                elementId + ';' +
-                elementType + ';' +
-                name + ';' +
-                inClass + ';' +
-                type + ';' +
-                visibility + ';' +
-                format+ ";"+
+        return projectId + '\t' +
+                diagramId + '\t' +
+                elementId + '\t' +
+                elementType + '\t' +
+                name + '\t' +
+                inClass + '\t' +
+                type + '\t' +
+                visibility + '\t' +
+                format+ "\t"+
                 nameBeginning;
 
     }
+
 
     @Override
     public String toString() {

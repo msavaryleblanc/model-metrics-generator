@@ -1,6 +1,7 @@
 package main.java.data.analysis;
 
 import main.java.data.analysis.entity.InputCSVEntry;
+import main.java.data.parsing.entity.InputDiagram;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,61 +14,36 @@ import java.util.function.Function;
 
 public class InputCSVReader {
 
-    HashMap<String, List<InputCSVEntry>> idMap = new HashMap<>();
-    List<InputCSVEntry> allEntries = new ArrayList<>();
-int couldnotfind = 0;
+    List<InputDiagram> inputDiagrams = new ArrayList<>();
 
     public InputCSVReader() {
         readFile();
-        System.out.println(idMap);
+        System.out.println("Created " + inputDiagrams.size() + " entries");
     }
 
     private void readFile() {
         try {
-            List<String> lines = lines = Files.readAllLines(Path.of("D:\\boulot\\genmymodel-model-retriever\\file-download.csv"));
-            lines.remove(0);
+            List<String> lines = lines = Files.readAllLines(Path.of("csv/csv_report_1.csv"));
+
             for (String line : lines) {
-                InputCSVEntry inputCSVEntry = new InputCSVEntry();
-                String[] splittedLine = line.split(",");
-                if(splittedLine.length > 8) {
-                    inputCSVEntry.setProjectName(splittedLine[0]);
-                    inputCSVEntry.setProjectCreationDate(splittedLine[2]);
-                    inputCSVEntry.setProjectId(splittedLine[3]);
-                    inputCSVEntry.setProjectLastModificationDate(splittedLine[4]);
-                    inputCSVEntry.setProjectXmiUrl(splittedLine[5]);
-                    inputCSVEntry.setProjectType(splittedLine[6]);
-                    inputCSVEntry.setDiagramKind(splittedLine[11]);
-                    inputCSVEntry.setDiagramId(splittedLine[9]);
-                    inputCSVEntry.setJpegLink(splittedLine[12]);
+                InputDiagram inputDiagram = new InputDiagram();
+                String[] splittedLine = line.split(";");
 
-                    allEntries.add(inputCSVEntry);
+                inputDiagram.setFileName(splittedLine[0]);
+                inputDiagram.setProjectId(splittedLine[1]);
+                inputDiagram.setDiagramId(splittedLine[2]);
 
-                    idMap.computeIfAbsent(inputCSVEntry.getProjectId(), new Function<String, List<InputCSVEntry>>() {
-                        @Override
-                        public List<InputCSVEntry> apply(String s) {
-                            return new ArrayList<>();
-                        }
-                    });
 
-                    idMap.get(inputCSVEntry.getProjectId()).add(inputCSVEntry);
-                }
+                inputDiagrams.add(inputDiagram);
+
             }
+
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public boolean doesProjectContainsClassDiagram(String projectId) {
-        if(idMap.get(projectId) == null){
-            couldnotfind++;
-            System.out.println("Could not find project with id " + projectId);
-            return false;
-        }
-        for (InputCSVEntry entry : idMap.get(projectId)) {
-            if ("ClassDiagram".equals(entry.getDiagramKind())) {
-                return true;
-            }
-        }
-        return false;
+    public List<InputDiagram> getInputDiagrams() {
+        return inputDiagrams;
     }
 }

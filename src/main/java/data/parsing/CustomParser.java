@@ -55,6 +55,18 @@ public class CustomParser {
         try {
             dom = db.parse(new File(BASE_PATH + inputDiagram.getFileName()));
 
+            //<details xmi:id="_vJ0LwPcXEeydvaHhUPK6Jg01" key="author" value="dgutierrezc1"/>
+
+            NodeList detailList = dom.getElementsByTagName("details");
+            String author = "unknown";
+            for (int i = 0; i < detailList.getLength(); i++) {
+                Node detail = detailList.item(i);
+                if (detail.getAttributes().getNamedItem("key") != null && "author".equals(detail.getAttributes().getNamedItem("key").getNodeValue())) {
+                    author = detail.getAttributes().getNamedItem("value").getNodeValue();
+                }
+            }
+
+
             NodeList contentsNodeList = dom.getElementsByTagName("contents");
             for (int i = 0; i < contentsNodeList.getLength(); i++) {
                 Node contents = contentsNodeList.item(i);
@@ -62,22 +74,21 @@ public class CustomParser {
 
                     OutputCSVEntry outputCSVEntry = new OutputCSVEntry();
                     outputCSVEntry.setFileName(inputDiagram.getFileName());
+                    outputCSVEntry.setAuthor(author);
                     String projectId = inputDiagram.getFileName().split("-UML-")[1].replace(".xmi", "");
                     outputCSVEntry.setProjectId(projectId);
 
                     if (inputDiagram.getProjectId() != null && !projectId.equals(inputDiagram.getProjectId())) {
-                        System.out.print("Skipping diagram");
+                        //System.out.print("Skipping diagram");
                         continue;
                     }
 
                     String diagramId = contents.getAttributes().getNamedItem("xmi:id").getNodeValue();
 
                     if (inputDiagram.getDiagramId() != null && !diagramId.equals(inputDiagram.getDiagramId())) {
-                        System.out.print("Skipping diagram");
+                        //System.out.print("Skipping diagram");
                         continue;
                     }
-
-
 
 
                     outputCSVEntry.setDiagramId(diagramId);
@@ -89,7 +100,6 @@ public class CustomParser {
                     outputCSVEntry.setNbIntersect(Integer.toString(segmentIntersectionCounter.computeIntersections(segments)));
                     //System.out.println("number of intersections : " + outputCSVEntry.getNbIntersect());
                     //System.out.println(outputCSVEntry.getDiagramUrl());
-
 
 
                     //Get owned elements of this specific diagram
@@ -142,7 +152,7 @@ public class CustomParser {
 
                     //Handle total links
                     Set<String> modelElements = new HashSet<>();
-                    for(OwnedDiagramElements ownedDiagramElements : linkLikeElements){
+                    for (OwnedDiagramElements ownedDiagramElements : linkLikeElements) {
                         modelElements.add(ownedDiagramElements.modelElement);
                     }
 
@@ -159,7 +169,7 @@ public class CustomParser {
                     int maxElements = -1;
 
                     for (PackagedElement packagedElement : umlElements) {
-                        for(String connexionEnd : packagedElement.endType){
+                        for (String connexionEnd : packagedElement.endType) {
                             connexionCounter.computeIfAbsent(connexionEnd, new Function<String, Integer>() {
                                 @Override
                                 public Integer apply(String s) {
@@ -188,18 +198,20 @@ public class CustomParser {
 
                     String maxConnectedElementId = "";
                     int maxConnexion = -1;
-                    for(Map.Entry<String, Integer> entry : connexionCounter.entrySet()){
+                    for (Map.Entry<String, Integer> entry : connexionCounter.entrySet()) {
 
-                        if(entry.getValue() > maxConnexion){
+                        if (entry.getValue() > maxConnexion) {
                             maxConnexion = entry.getValue();
                             maxConnectedElementId = entry.getKey();
                         }
                     }
                     outputCSVEntry.setMaxLinkForClass(Integer.toString(maxConnexion));
                     OwnedDiagramElements maxConnectedClass = null;
-                    for(OwnedDiagramElements ownedDiagramElements : classLikeElements){
-                        if(ownedDiagramElements.modelElement.equals(maxConnectedElementId)){
-                            maxConnectedClass = ownedDiagramElements;
+                    for (OwnedDiagramElements ownedDiagramElements : classLikeElements) {
+                        if (ownedDiagramElements.modelElement != null) {
+                            if (ownedDiagramElements.modelElement.equals(maxConnectedElementId)) {
+                                maxConnectedClass = ownedDiagramElements;
+                            }
                         }
                     }
 
@@ -245,9 +257,11 @@ public class CustomParser {
 
                         OwnedDiagramElements maxElementsClass = null;
                         for (OwnedDiagramElements ownedDiagramElements : classLikeElements) {
-                            if (ownedDiagramElements.modelElement.equals(elementWithMaxElements.id)) {
-                                maxElementsClass = ownedDiagramElements;
-                                break;
+                            if (ownedDiagramElements.modelElement != null && elementWithMaxElements != null) {
+                                if (ownedDiagramElements.modelElement.equals(elementWithMaxElements.id)) {
+                                    maxElementsClass = ownedDiagramElements;
+                                    break;
+                                }
                             }
                         }
                         if (maxElementsClass != null) {
@@ -356,7 +370,11 @@ public class CustomParser {
 
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node element = nodeList.item(i);
-            if (setOfId.contains(element.getAttributes().getNamedItem("xmi:id").getNodeValue())) {
+            if (element.getAttributes().getNamedItem("xmi:id") != null && setOfId.contains(
+                    element
+                            .getAttributes()
+                            .getNamedItem("xmi:id")
+                            .getNodeValue())) {
                 switch (element.getAttributes().getNamedItem("xsi:type").getNodeValue()) {
                     case "uml:Class":
                         output.add(new ClassElement(element));
@@ -405,7 +423,7 @@ public class CustomParser {
                     case "uml:InformationFlow":
                     case "uml:Node":
                     case "uml:CommunicationPath":
-                        //Do nothing
+                        output.add(new StrangerElement(element));
                         break;
                     default:
                         System.out.println("Didnt handle type " + element.getAttributes().getNamedItem("xsi:type").getNodeValue() + " - " + url);
