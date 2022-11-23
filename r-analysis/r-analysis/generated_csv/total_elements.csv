@@ -1,29 +1,29 @@
 "","type_total","n"
-"1","attribute",1471388
-"2","operation",930315
-"3","class",829547
-"4","association regular",304727
-"5","generalization",192090
-"6","association composite",102930
-"7","interface",72943
-"8","package",66792
-"9","association shared",55509
-"10","dependency",43429
-"11","enumeration",28082
-"12","usage",23297
-"13","datatype",11583
-"14","association_class ",4081
-"15","uml:InformationFlow",552
-"16","uml:UseCase",545
+"1","attribute",1695402
+"2","operation",1015656
+"3","class",926588
+"4","association regular",356090
+"5","generalization",210520
+"6","association composite",122052
+"7","interface",76849
+"8","package",70174
+"9","association shared",60469
+"10","dependency",46862
+"11","enumeration",38248
+"12","usage",25555
+"13","datatype",12948
+"14","association_class ",4361
+"15","uml:UseCase",607
+"16","uml:InformationFlow",584
 "17","interface_realization",456
-"18","instance_specification",310
-"19","uml:Actor",262
-"20","uml:Component",154
-"21","uml:Node",54
+"18","instance_specification",314
+"19","uml:Actor",293
+"20","uml:Component",169
+"21","uml:Node",58
 "22","uml:CommunicationPath",35
 "23","uml:Device",23
 "24","uml:Artifact",13
-"25","enumeration_literal",6
+"25","enumeration_literal",9
 "26","uml:ExecutionEnvironment",2
 "27","uml:StateMachine",2
 "28","uml:Activity",1

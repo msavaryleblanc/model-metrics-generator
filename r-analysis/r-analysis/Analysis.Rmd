@@ -45,7 +45,6 @@ annotated_elements <- elements %>% group_by(identifiant, type) %>% tally() %>% m
 
 filtered_elements <- annotated_elements %>% filter(grepl("class_diag",type_filtre)) %>% group_by(identifiant) %>% tally()
 
-elts <- elements %>% filter(grepl("_52q-EIQqEDWouOUxqQVIKw",element_id))
 report_clean <- report %>% filter((identifiant %in% filtered_elements$identifiant))
 elements_clean <- elements %>% filter((identifiant %in% report_clean$identifiant))
 
@@ -72,7 +71,7 @@ autres <- annotated_elements %>% filter(grepl("autre",type_filtre)) %>% group_by
 #collapsed <- hybrid_elements %>% group_by(identifiant, type_filtre) %>% arrange(type_filtre) %>% tally() %>% filter(!grepl("autre",type_filtre))  %>% summarize(types = paste0(type_filtre, collapse = " ")) %>% group_by(types) %>% tally() %>% filter(grepl("class_diag",types))
 collapsed <- annotated_elements %>% group_by(identifiant, type_filtre) %>% arrange(type_filtre) %>% tally() %>% filter(!grepl("autre",type_filtre))%>% filter(!grepl("package",type_filtre)) %>% summarize(types = paste0(type_filtre, collapse = " ")) %>% group_by(types) %>% tally() %>% filter(grepl("class_diag",types))
 
-noelts <- annotated_elements %>% group_by(identifiant, type_filtre) %>% arrange(type_filtre) %>% tally() %>% filter(!grepl("autre",type_filtre))  %>% summarize(types = paste0(type_filtre, collapse = " ")) %>% group_by(types) %>% tally()
+noelts <- annotated_elements %>% group_by(identifiant, type_filtre) %>% arrange(type_filtre) %>% tally() %>% filter(!grepl("autre",type_filtre)) %>% filter(!grepl("package",type_filtre)) %>% summarize(types = paste0(type_filtre, collapse = " ")) %>% group_by(types) %>% tally()
 
 no_elts_final <- report %>% filter(!(identifiant %in% noelts$identifiant))
 
@@ -242,7 +241,23 @@ fig
 #Color top1
 ```{r}
 
-nb_elts <- color_csv %>% group_by(project_id, diagram_id, color, url) %>% tally() %>% arrange(color) %>% group_by(project_id, diagram_id, url) %>% summarize(nb_color = n(), colors = paste0(color, collapse = " ") , identifiant = paste(project_id, diagram_id)) %>% distinct() %>% group_by(colors, nb_color) %>% summarize(total = n()) %>% arrange(nb_color, desc(total)) %>% group_by(nb_color) %>% slice_max(total, n = 3)
+nb_elts <- color_csv %>% group_by(project_id, diagram_id, color, url) %>% tally() %>% arrange(color) %>% group_by(project_id, diagram_id, url) %>% summarize(nb_color = n(), colors = paste0(color, collapse = " ") , identifiant = paste(project_id, diagram_id)) %>% distinct() %>% group_by(colors, nb_color) %>% summarize(total = n()) %>% arrange(nb_color, desc(total)) %>% group_by(nb_color)# %>% slice_max(total, n = 3)
+
+totaux <- color_csv %>% group_by(project_id, diagram_id, color, url) %>% tally() %>% arrange(color) %>% group_by(project_id, diagram_id, url) %>% summarize(nb_color = n(), colors = paste0(color, collapse = " ") , identifiant = paste(project_id, diagram_id)) %>% distinct() %>% group_by(colors, nb_color) %>% summarize(total = n()) %>% arrange(nb_color, desc(total)) %>% group_by(nb_color) %>% group_by(nb_color) %>% summarise(total= sum(total))
+
+```
+
+
+# With and without elements
+```{r}
+
+nb_elts <- elements_clean %>% group_by(identifiant, type) %>% tally() %>% spread(type, n) %>% replace_na(list(attribute = 0, operation = 0, class = 0)) %>% filter(class > 0) %>% mutate(has_attr = (attribute > 0), has_ope = (operation > 0), mean_att = attribute / class, mean_ope = operation/class) %>% group_by(has_attr,has_ope) %>% summarize(n = n(), mean_att1 = mean(mean_att), mean_ope1 = mean(mean_ope))
+
+nb_elts <- elements_clean %>% group_by(identifiant, type) %>% tally() %>% spread(type, n) %>% replace_na(list(attribute = 0, operation = 0, class = 0)) %>% filter(class > 0) %>% mutate(has_attr = (attribute > 0), has_ope = (operation > 0), mean_att = attribute / class, mean_ope = operation/class) %>% group_by() %>% summarize(n = n(), mean_att1 = mean(mean_att), mean_ope1 = mean(mean_ope))
+write.csv(nb_elts,"generated_csv/diagram_with_ope_attr.csv", row.names = TRUE)
+
+
+nb_elts <- elements_clean %>% group_by(in_class, type) %>% tally() %>% spread(type, n) %>% replace_na(list(attribute = 0, operation = 0)) %>% group_by() %>% summarise(mean_attr = sum(attribute), mean_ope = sum(operation))
 
 ```
 
@@ -251,7 +266,7 @@ nb_elts <- color_csv %>% group_by(project_id, diagram_id, color, url) %>% tally(
 
 nb_diags <- report_clean %>% group_by(nb_class) %>% tally()
 nb_elts <- elements_clean %>% group_by(identifiant, type) %>% tally() %>% spread(type, n) %>% replace_na(list(attribute = 0, operation = 0))
-full_annotated <- left_join(nb_elts, report_clean, "identifiant") %>% group_by(nb_class) %>% summarize(mean_att = mean(attribute), mean_ope = mean(operation)) %>% filter(nb_class > 0, nb_class < 100, mean_ope < 150, mean_att < 150)
+full_annotated <- left_join(nb_elts, report_clean, "identifiant") %>% group_by(nb_class) %>% summarize(mean_att = mean(attribute/nb_class), mean_ope = mean(operation/nb_class)) %>% filter(nb_class > 0, nb_class < 100, mean_ope < 150, mean_att < 150)
 
 fig <- plot_ly(full_annotated, x = ~nb_class) 
 fig <- fig %>% add_trace(y = ~mean_ope, name = 'ope',mode = 'markers')
@@ -284,7 +299,7 @@ fig
 nb_elts <- elements_clean %>% group_by(in_class, type) %>% tally() %>% spread(type, n)
 nb_elts <- nb_elts %>% replace_na(list(attribute = 0, operation = 0))
 
-calcul <- nb_elts %>% group_by(attribute) %>% summarize(moy_ope = mean(operation)) %>% filter(attribute <100, moy_ope < 100)
+calcul <- nb_elts %>% group_by(attribute) %>% summarize(moy_ope = mean(operation), n = n()) %>% filter(attribute <100, moy_ope < 50)
 
 fig <- plot_ly(calcul, x = ~attribute, y = ~moy_ope) 
 write.csv(calcul,"generated_csv/ope_by_class_by_class.csv", row.names = TRUE)
@@ -346,6 +361,18 @@ write.csv(nb_elts,"generated_csv/mean_max_connect_by_class", row.names = TRUE)
 fig
 
 ```
+
+# max connect vs nb_lien
+```{r}
+nb_elts <- report_clean %>% filter(nb_class < 100) %>% group_by(nb_links) %>% summarize(mean_max_connect = mean(max_link_for_class)) 
+
+fig <- plot_ly(nb_elts, x = ~nb_links, y = ~mean_max_connect)
+write.csv(nb_elts,"generated_csv/mean_max_connect_by_link.csv", row.names = TRUE)
+
+fig
+
+```
+
 
 # max elt in class vs nb_class
 ```{r}

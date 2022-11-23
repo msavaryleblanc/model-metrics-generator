@@ -1,0 +1,12 @@
+"","type","camel_case","camel_case + single_lower","camel_case + single_lower + single_upper","camel_case + single_lower + single_upper + snake_case","camel_case + single_lower + single_upper + snake_case + with_spaces","camel_case + single_lower + single_upper + with_spaces","camel_case + single_lower + snake_case","camel_case + single_lower + snake_case + with_spaces","camel_case + single_lower + with_spaces","camel_case + single_upper","camel_case + single_upper + snake_case","camel_case + single_upper + snake_case + with_spaces","camel_case + single_upper + with_spaces","camel_case + snake_case","camel_case + snake_case + with_spaces","camel_case + with_spaces","single_lower","single_lower + single_upper","single_lower + single_upper + snake_case","single_lower + single_upper + snake_case + with_spaces","single_lower + single_upper + with_spaces","single_lower + snake_case","single_lower + snake_case + with_spaces","single_lower + with_spaces","single_upper","single_upper + snake_case","single_upper + snake_case + with_spaces","single_upper + with_spaces","snake_case","snake_case + with_spaces","with_spaces"
+"1","association_class",269,80,3,NA,NA,NA,14,1,2,NA,NA,NA,NA,29,NA,1,989,2,NA,NA,NA,97,12,56,26,3,NA,2,696,27,152
+"2","attribute",2803,41091,4048,1419,353,1132,4047,722,3169,111,42,5,14,281,34,188,17747,804,608,300,1103,5000,848,3271,121,144,40,96,946,75,443
+"3","class",13079,47359,3060,158,52,565,1200,216,4543,321,19,7,48,328,34,773,17449,1284,132,70,893,2228,479,8004,801,171,40,294,600,133,1071
+"4","datatype",779,826,42,1,5,11,13,18,88,7,1,NA,9,11,2,49,1528,31,2,2,11,26,14,81,45,3,NA,5,62,9,141
+"5","enumeration",15476,741,9,NA,NA,1,12,1,16,18,NA,NA,2,47,NA,54,1571,9,1,1,NA,33,2,61,57,25,NA,4,149,3,230
+"6","enumeration_literal",1,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,1
+"7","instance_specification",11,6,NA,NA,NA,NA,NA,1,4,NA,NA,NA,NA,1,NA,1,8,NA,NA,NA,NA,2,NA,5,NA,NA,NA,NA,1,2,1
+"8","interface",10795,1915,62,4,NA,3,18,4,74,57,1,NA,1,60,3,127,10389,49,NA,NA,4,33,5,188,151,7,NA,7,221,7,395
+"9","interface_realization",95,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"10","operation",21622,30353,536,70,18,75,2888,373,2378,37,4,5,4,461,61,878,4670,32,37,13,59,2148,352,1990,54,38,7,72,680,102,988
+"11","package",3158,963,97,8,2,16,23,6,119,45,7,1,8,11,2,93,12959,185,8,2,44,117,11,425,166,18,1,34,199,5,1169
